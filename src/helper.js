@@ -17,16 +17,16 @@ const ToolUrlMap = {
 		LINUX: 'https://dl.google.com/android/repository/platform-tools-latest-linux.zip',
 		OSX: 'https://dl.google.com/android/repository/platform-tools-latest-darwin.zip'
 	},
-	gradle:{
+	gradle47:{
 		WINDOWS:'https://services.gradle.org/distributions/gradle-4.7-bin.zip',
 		LINUX:'https://services.gradle.org/distributions/gradle-4.7-bin.zip',
-		OSX:'https://services.gradle.org/distributions/gradle-4.7-bin.zip'
+		WINDOWS:'https://services.gradle.org/distributions/gradle-4.7-bin.zip',
 	}
 }
 const packageJson = require('../package.json');
 
-function getOSUrl(toolName) {
-	const urls = ToolUrlMap[toolName || 'adb'];
+function getOSUrl(tname) {
+	const urls = ToolUrlMap[tname || 'adb'];
 	const currentOS = os.platform();
 	debug('Getting android SDK for platform: ' + currentOS);
 	switch (currentOS) {
@@ -56,7 +56,7 @@ function getExecutablebyOS(name) {
 	const currentOS = os.platform();
 	switch (currentOS) {
 	case 'win32':
-		return `${name}.exe`;
+		return name == 'gradle'?'gradle.bat':`${name}.exe`;
 	case 'darwin':
 		return `${name}`;
 	case 'linux':
@@ -67,34 +67,30 @@ function getExecutablebyOS(name) {
 	}
 }
 
-function getToolPaths(platformToolsDirName) {
-	if (!platformToolsDirName) {
-		platformToolsDirName = 'platform-tools';
-	}
+function getToolPaths(tname) {
+	const platformToolsDirName = 'platform-tools';
+
 	const adbBinary = getExecutablebyOS('adb');
 	const fastBootBinary = getExecutablebyOS('fastboot');
 	const dmtracedumpBinary = getExecutablebyOS('dmtracedump');
 	const etc1toolBinary = getExecutablebyOS('etc1tool');
 	const hprofconvBinary = getExecutablebyOS('hprof-conv');
 	const sqlite3Binary = getExecutablebyOS('sqlite3');
-	const adbPath = path.resolve(__dirname, '..', platformToolsDirName, adbBinary);
-	const fasbootPath = path.resolve(__dirname, '..', platformToolsDirName, fastBootBinary);
-	const dmtracedumpPath = path.resolve(__dirname, '..', platformToolsDirName, dmtracedumpBinary);
-	const etc1toolPath = path.resolve(__dirname, '..', platformToolsDirName, etc1toolBinary);
-	const hprofconvPath = path.resolve(__dirname, '..', platformToolsDirName, hprofconvBinary);
-	const sqlite3Path = path.resolve(__dirname, '..', platformToolsDirName, sqlite3Binary);
-	const platformToolsPath = path.resolve(__dirname, '..', platformToolsDirName);
-	return fs.pathExists(adbPath).then((exists) => {
+	const gradleBat = getExecutablebyOS('gradle');
+	const paths = {
+		adbPath : path.resolve(__dirname, '..', platformToolsDirName, adbBinary),
+		gradle47Path : path.resolve(__dirname, '..', platformToolsDirName, 'gradle-4.7/bin',gradleBat),
+		fasbootPath : path.resolve(__dirname, '..', platformToolsDirName, fastBootBinary),
+		dmtracedumpPath : path.resolve(__dirname, '..', platformToolsDirName, dmtracedumpBinary),
+		etc1toolPath : path.resolve(__dirname, '..', platformToolsDirName, etc1toolBinary),
+		hprofconvPath : path.resolve(__dirname, '..', platformToolsDirName, hprofconvBinary),
+		sqlite3Path : path.resolve(__dirname, '..', platformToolsDirName, sqlite3Binary),
+		platformToolsPath : path.resolve(__dirname, '..', platformToolsDirName),
+	}
+	
+	return fs.pathExists(paths[tname+'Path']).then((exists) => {
 		if (exists === true) {
-			return {
-				adbPath,
-				platformToolsPath,
-				fasbootPath,
-				dmtracedumpPath,
-				etc1toolPath,
-				hprofconvPath,
-				sqlite3Path
-			};
+			return paths;
 		} else {
 			return null;
 		}

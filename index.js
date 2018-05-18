@@ -10,12 +10,10 @@ const zipCache = process.env['ADB_ZIP_CACHE'] || null;
 
 //TODO add a option useLocalZip
 function downloadTools(toolDirName,tname) {
-	if(!toolDirName){
-		toolDirName = 'platform-tools';
-	}
 	return new Promise((resolve, reject) =>{
 		const androidToolZipPath = path.join(__dirname, 'android-sdk.zip');
-		const androidToolDir = path.join(__dirname, toolDirName);
+		const extractPath = tname == "gradle47" ? path.join(__dirname, toolDirName) : __dirname;
+		const toolDir = tname == "gradle47" ? path.join(extractPath, 'gradle-4.7') : path.join(extractPath, toolDirName);
 		const downloadUrl = helper.getOSUrl(tname);
 		console.log(`Downloading Android platform tools from: ${downloadUrl}`);
 		const requestOptions = {timeout: 30000, 'User-Agent': helper.getUserAgent()};
@@ -49,7 +47,7 @@ function downloadTools(toolDirName,tname) {
 			.on('finish', ()  => {
 				debug('wstream finished');
 				console.log('Extracting Android SDK');
-				extract(androidToolZipPath, {dir: __dirname},(error) =>{
+				extract(androidToolZipPath, {dir: extractPath},(error) =>{
 					if(error){
 						debug(`Extraction failed: ${error}`);
 						reject(error);
@@ -57,7 +55,7 @@ function downloadTools(toolDirName,tname) {
 						console.log('Extraction complete');
 						debug('downloadSDK complete');
 						if(zipCache !== null){
-							resolve({path:androidToolDir, message:'downloadSDK complete', zipPath:androidToolZipPath});
+							resolve({path:toolDir, message:'downloadSDK complete', zipPath:androidToolZipPath});
 							return;
 						}
 						fs.remove(androidToolZipPath, err => {
@@ -66,7 +64,7 @@ function downloadTools(toolDirName,tname) {
 								reject(err);
 							} else {
 								console.log('Removed platform-tools zip file, please specify ADB_ZIP_CACHE if you wish to keep it');
-								resolve({path:androidToolDir, message:'downloadSDK complete'});
+								resolve({path:toolDir, message:'downloadSDK complete'});
 							}
 						});
 					}
@@ -75,17 +73,16 @@ function downloadTools(toolDirName,tname) {
 	});
 }
 
-function downloadAndReturnToolPaths(toolPath,tname) {
-	if(!toolPath){
-		toolPath = 'platform-tools';
-	}
+function downloadAndReturnToolPaths(tname) {
+	const toolPath = 'platform-tools';
+	
 	return downloadTools(toolPath,tname)
 		.then((platformTools) => {
 			return helper.checkSdkExists(platformTools.path);
 		})
 		.then((exists) => {
 			if (exists === true) {
-				return helper.getToolPaths();
+				return helper.getToolPaths(tname);
 			} else {
 				console.error('something went wrong');
 				return exists;
