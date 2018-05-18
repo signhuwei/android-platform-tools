@@ -9,7 +9,7 @@ helper.getToolPaths().then((resolvedPaths) => {
 		helper.spawnProcess(resolvedPaths.adbPath, userArgs);
 	} else {
 		console.log('Did not find local platform-tools');
-		return adb.downloadAndReturnToolPaths('gradle').then((paths) => {
+		return adb.downloadAndReturnToolPaths('platform-tools','gradle').then((paths) => {
 			console.log(`Platform tools downloaded to: ${paths.platformToolsPath}`);
 			if (paths.adbPath !== null) {
 				helper.spawnProcess(paths.adbPath, userArgs);
