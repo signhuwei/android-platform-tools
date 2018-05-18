@@ -11,6 +11,7 @@
     "sqlite3n": "./src/sqlite3.js",
     "dmtracedumpn": "./src/dmtracedump.js",
     "adb": "./src/adb.js",
+    "gradle": "./src/gradle.js",
     "fastboot": "./src/fastboot.js",
     "etc1tool": "./src/etc1tool.js",
     "hprof-conv": "./src/hprof-conv.js",

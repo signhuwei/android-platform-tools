@@ -11,24 +11,34 @@ const rainbowMode = process.env['ADB_RAINBOW'] || false;
 const moreLogging = process.env['TOOL_LOGGING'] || false;
 const errorRegex = new RegExp('error:', 'i');
 
-const WINDOWS_URL = 'https://dl.google.com/android/repository/platform-tools-latest-windows.zip';
-const LINUX_URL = 'https://dl.google.com/android/repository/platform-tools-latest-linux.zip';
-const OSX_URL = 'https://dl.google.com/android/repository/platform-tools-latest-darwin.zip';
+const ToolUrlMap = {
+	adb:{
+		WINDOWS: 'https://dl.google.com/android/repository/platform-tools-latest-windows.zip',
+		LINUX: 'https://dl.google.com/android/repository/platform-tools-latest-linux.zip',
+		OSX: 'https://dl.google.com/android/repository/platform-tools-latest-darwin.zip'
+	},
+	gradle:{
+		WINDOWS:'https://services.gradle.org/distributions/gradle-4.7-bin.zip',
+		LINUX:'https://services.gradle.org/distributions/gradle-4.7-bin.zip',
+		OSX:'https://services.gradle.org/distributions/gradle-4.7-bin.zip'
+	}
+}
 const packageJson = require('../package.json');
 
-function getOSUrl() {
+function getOSUrl(toolName) {
+	const urls = ToolUrlMap[toolName || 'adb'];
 	const currentOS = os.platform();
 	debug('Getting android SDK for platform: ' + currentOS);
 	switch (currentOS) {
 	case 'win32':
-		return WINDOWS_URL;
+		return urls.WINDOWS;
 	case 'darwin':
-		return OSX_URL;
+		return urls.OSX;
 	case 'linux':
-		return LINUX_URL;
+		return urls.LINUX;
 	default:
 		console.log(`Using undefined OS of ${currentOS} ,defaulting to linux`);
-		return LINUX_URL;
+		return urls.LINUX;
 	}
 }
 

@@ -9,14 +9,14 @@ const extract = require('extract-zip');
 const zipCache = process.env['ADB_ZIP_CACHE'] || null;
 
 //TODO add a option useLocalZip
-function downloadTools(toolDirName) {
+function downloadTools(toolDirName,tname) {
 	if(!toolDirName){
 		toolDirName = 'platform-tools';
 	}
 	return new Promise((resolve, reject) =>{
 		const androidToolZipPath = path.join(__dirname, 'android-sdk.zip');
 		const androidToolDir = path.join(__dirname, toolDirName);
-		const downloadUrl = helper.getOSUrl();
+		const downloadUrl = helper.getOSUrl(tname);
 		console.log(`Downloading Android platform tools from: ${downloadUrl}`);
 		const requestOptions = {timeout: 30000, 'User-Agent': helper.getUserAgent()};
 		request(downloadUrl, requestOptions)
@@ -75,11 +75,11 @@ function downloadTools(toolDirName) {
 	});
 }
 
-function downloadAndReturnToolPaths(toolPath) {
+function downloadAndReturnToolPaths(toolPath,tname) {
 	if(!toolPath){
 		toolPath = 'platform-tools';
 	}
-	return downloadTools(toolPath)
+	return downloadTools(toolPath,tname)
 		.then((platformTools) => {
 			return helper.checkSdkExists(platformTools.path);
 		})
